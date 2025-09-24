@@ -22,25 +22,31 @@ let obstacles = [];
 let score = 0;
 let frame = 0;
 let gameOver = false;
+let gameStarted = false;
 
 // ====== Controls ======
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space") {
         e.preventDefault(); // stops page from scrolling on Space
-        if (!capybara.jumping && !gameOver) {
+        if (!capybara.jumping && gameStarted && !gameOver) {
             capybara.dy = JUMP_STRENGTH;
             capybara.jumping = true;
         }
     }
-    if (e.code === "Enter" && gameOver) {
-        resetGame();
+    if (e.code === "Enter") {
+        if (!gameStarted) {
+            gameStarted = true;
+            resetGame();
+        } else if (gameOver) {
+            resetGame();
+        }
     }
 });
 
 // Touch support for mobile
 canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
-    if (!capybara.jumping && !gameOver) {
+    if (gameStarted && !capybara.jumping && !gameOver) {
         capybara.dy = JUMP_STRENGTH;
         capybara.jumping = true;
     }
@@ -95,16 +101,41 @@ function checkCollision() {
     return false;
 }
 
-// ====== Reset game ======
+// Welcome screen
+function drawWelcomeScreen() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "black";
+    ctx.font = "36px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(
+        "🐼 Capybara Runner 🐼",
+        canvas.width / 2,
+        canvas.height / 2 - 40
+    );
+
+    ctx.font = "20px Arial";
+    ctx.fillText(
+        "Press Enter to Start",
+        canvas.width / 2,
+        canvas.height / 2 + 20
+    );
+    ctx.fillText(
+        "Press Space to Jump",
+        canvas.width / 2,
+        canvas.height / 2 + 50
+    );
+}
+
 function resetGame() {
     obstacles = [];
-    score = 0;
+    score = -1;
     frame = 0;
     capybara.y = GROUND_Y;
     capybara.dy = 0;
     capybara.jumping = false;
     gameOver = false;
-    gameLoop();
+    requestAnimationFrame(gameLoop);
 }
 
 // ====== Main loop ======
@@ -134,11 +165,13 @@ function gameLoop() {
     if (checkCollision()) {
         ctx.fillStyle = "black";
         ctx.font = "24px Arial";
+        ctx.textAlign = "center";
         ctx.fillText(
             "Game Over - Press Enter to Restart",
-            canvas.width / 2 - 180,
+            canvas.width / 2,
             100
         );
+        ctx.textAlign = "start"; // reset if needed later
         gameOver = true;
         return; // stop the loop
     }
@@ -147,4 +180,11 @@ function gameLoop() {
     if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+function main() {
+    if (!gameStarted) {
+        drawWelcomeScreen();
+        requestAnimationFrame(main);
+    }
+}
+
+main();
