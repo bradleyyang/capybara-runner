@@ -5,11 +5,15 @@ const ctx = canvas.getContext("2d");
 canvas.width = 900;
 canvas.height = 525;
 
+// Capybara dimensions
+const capybaraWidth = 60;
+const capybaraHeight = 48;
+
 // Spritesheet frames
 const capybaraFrames = [
-    { x: 0, y: 0, w: 15, h: 12 }, // top-left
-    { x: 15, y: 0, w: 15, h: 12 }, // top-right
-    { x: 0, y: 12, w: 15, h: 12 }, // bottom-left
+    { x: 0, y: 0, w: capybaraWidth, h: capybaraHeight }, // top-left
+    { x: capybaraWidth, y: 0, w: capybaraWidth, h: capybaraHeight }, // top-right
+    { x: 0, y: capybaraHeight, w: capybaraWidth, h: capybaraHeight }, // bottom-left
 ];
 let frameCount = capybaraFrames.length;
 let frameDelay = 8; // frames between animation frames
@@ -18,13 +22,13 @@ let frameTick = 0;
 
 // ====== Assets =====
 const capybaraImg = new Image();
-capybaraImg.src = "assets/capybara_spritesheet.png";
+capybaraImg.src = "assets/capybara.png";
 
 const backgroundImg = new Image();
 backgroundImg.src = "assets/background.png";
 
 // ====== Constants (easy to tweak) ======
-const GROUND_Y = 425; // adjusted 20 pixels lower
+const GROUND_Y = 410; // adjusted 20 pixels lower
 const JUMP_STRENGTH = -15; // initial dy when jump starts
 const GRAVITY = 1.2;
 const OBSTACLE_SPEED = 6;
@@ -34,8 +38,8 @@ const SPAWN_INTERVAL = 100; // frames between spawns
 let capybara = {
     x: 50,
     y: GROUND_Y,
-    width: 38, // scaled width
-    height: 30, // scaled height
+    width: 60, // scaled width
+    height: 48, // scaled height
     dy: 0,
     jumping: false,
 };
@@ -114,7 +118,7 @@ function drawBackground() {
 
 // ====== Obstacles ======
 function spawnObstacle() {
-    let size = 15 + Math.random() * 15;
+    let size = 20 + Math.random() * 20;
     const bottom = capybara.y + capybara.height;
     obstacles.push({
         x: canvas.width,
