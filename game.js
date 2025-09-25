@@ -2,8 +2,29 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+canvas.width = 900;
+canvas.height = 525;
+
+// Spritesheet frames
+const capybaraFrames = [
+    { x: 0, y: 0, w: 15, h: 12 }, // top-left
+    { x: 15, y: 0, w: 15, h: 12 }, // top-right
+    { x: 0, y: 12, w: 15, h: 12 }, // bottom-left
+];
+let frameCount = capybaraFrames.length;
+let frameDelay = 8; // frames between animation frames
+let frameIndex = 0;
+let frameTick = 0;
+
+// ====== Assets =====
+const capybaraImg = new Image();
+capybaraImg.src = "assets/capybara_spritesheet.png";
+
+const backgroundImg = new Image();
+backgroundImg.src = "assets/background.png";
+
 // ====== Constants (easy to tweak) ======
-const GROUND_Y = 150; // top y of the player when standing on ground
+const GROUND_Y = 425; // adjusted 20 pixels lower
 const JUMP_STRENGTH = -15; // initial dy when jump starts
 const GRAVITY = 1.2;
 const OBSTACLE_SPEED = 6;
@@ -13,8 +34,8 @@ const SPAWN_INTERVAL = 100; // frames between spawns
 let capybara = {
     x: 50,
     y: GROUND_Y,
-    width: 40,
-    height: 40,
+    width: 38, // scaled width
+    height: 30, // scaled height
     dy: 0,
     jumping: false,
 };
@@ -36,7 +57,6 @@ document.addEventListener("keydown", (e) => {
     if (e.code === "Enter") {
         if (!gameStarted) {
             gameStarted = true;
-            resetGame();
         } else if (gameOver) {
             resetGame();
         }
@@ -65,14 +85,40 @@ function updateCapybara() {
     }
 }
 
+// Draw player
+function drawCapybara() {
+    const frame = capybaraFrames[frameIndex];
+    ctx.drawImage(
+        capybaraImg,
+        frame.x,
+        frame.y,
+        frame.w,
+        frame.h,
+        capybara.x,
+        capybara.y,
+        capybara.width,
+        capybara.height
+    );
+
+    // Animate frames
+    frameTick++;
+    if (frameTick % frameDelay === 0) {
+        frameIndex = (frameIndex + 1) % frameCount;
+    }
+}
+
+// Draw background
+function drawBackground() {
+    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+}
+
 // ====== Obstacles ======
 function spawnObstacle() {
-    let size = 20 + Math.random() * 30;
-    // place obstacle so its bottom sits on the same ground as the capybara
-    const bottom = capybara.y + capybara.height; // e.g., 150 + 40 = 190
+    let size = 15 + Math.random() * 15;
+    const bottom = capybara.y + capybara.height;
     obstacles.push({
         x: canvas.width,
-        y: bottom - size,
+        y: GROUND_Y + capybara.height - size, // sit on the ground
         width: size,
         height: size,
     });
@@ -82,7 +128,6 @@ function updateObstacles() {
     for (let o of obstacles) {
         o.x -= OBSTACLE_SPEED;
     }
-    // remove off-screen obstacles
     obstacles = obstacles.filter((o) => o.x + o.width > 0);
 }
 
@@ -127,9 +172,10 @@ function drawWelcomeScreen() {
     );
 }
 
+// Reset game
 function resetGame() {
     obstacles = [];
-    score = -1;
+    score = 0;
     frame = 0;
     capybara.y = GROUND_Y;
     capybara.dy = 0;
@@ -142,26 +188,30 @@ function resetGame() {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw background first
+    drawBackground();
+
+    // Update player
     updateCapybara();
 
+    // Spawn and update obstacles
     if (frame % SPAWN_INTERVAL === 0) spawnObstacle();
     updateObstacles();
 
-    // Draw capybara
-    ctx.fillStyle = "green";
-    ctx.fillRect(capybara.x, capybara.y, capybara.width, capybara.height);
+    // Draw player
+    drawCapybara();
 
     // Draw obstacles
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "black";
     for (let o of obstacles) ctx.fillRect(o.x, o.y, o.width, o.height);
 
-    // Score
+    // Draw score
     score++;
     ctx.fillStyle = "black";
     ctx.font = "16px Arial";
     ctx.fillText("Score: " + score, canvas.width - 100, 20);
 
-    // Collision check
+    // Check collisions
     if (checkCollision()) {
         ctx.fillStyle = "black";
         ctx.font = "24px Arial";
@@ -171,19 +221,22 @@ function gameLoop() {
             canvas.width / 2,
             100
         );
-        ctx.textAlign = "start"; // reset if needed later
+        ctx.textAlign = "start";
         gameOver = true;
-        return; // stop the loop
+        return;
     }
 
     frame++;
     if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
+// Start
 function main() {
     if (!gameStarted) {
         drawWelcomeScreen();
         requestAnimationFrame(main);
+    } else {
+        requestAnimationFrame(gameLoop);
     }
 }
 
