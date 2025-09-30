@@ -10,14 +10,8 @@ export class Capybara {
     dy = 0;
     jumping = false;
 
-    frames = [
-        { x: 0, y: 0, w: 60, h: 48 },
-        { x: 60, y: 0, w: 60, h: 48 },
-        { x: 0, y: 48, w: 60, h: 48 },
-    ];
-    frameIndex = 0;
-    frameTick = 0;
-    frameDelay = 8;
+    private runFrame = { x: 0, y: 0, w: 60, h: 48 };
+    private jumpFrame = { x: 60, y: 0, w: 60, h: 48 };
 
     update() {
         this.y += this.dy;
@@ -41,22 +35,14 @@ export class Capybara {
     }
 
     draw() {
-        const frame = this.jumping ? this.frames[1] : this.frames[this.frameIndex];
-
-        if (!this.jumping) {
-            this.frameTick++;
-            if (this.frameTick >= this.frameDelay) {
-                this.frameIndex = (this.frameIndex + 1) % (this.frames.length - 1);
-                this.frameTick = 0;
-            }
-        }
+        const frame = this.jumping ? this.jumpFrame : this.runFrame;
 
         ctx.drawImage(
             capybaraImg,
-            frame!.x,
-            frame!.y,
-            frame!.w,
-            frame!.h,
+            frame.x,
+            frame.y,
+            frame.w,
+            frame.h,
             this.x,
             this.y,
             this.width,
@@ -68,7 +54,5 @@ export class Capybara {
         this.y = GROUND_Y;
         this.dy = 0;
         this.jumping = false;
-        this.frameIndex = 0;
-        this.frameTick = 0;
     }
 }
