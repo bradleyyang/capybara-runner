@@ -25,5 +25,9 @@ export function drawWelcomeScreen() {
         canvas.width / 2,
         canvas.height / 2 + 20
     );
-    ctx.fillText("Press Q to Quit", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText(
+        "Press Esc to Pause",
+        canvas.width / 2,
+        canvas.height / 2 + 50
+    );
 }
