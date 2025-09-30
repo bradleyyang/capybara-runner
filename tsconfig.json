@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "paths": {
+            "@/*": ["*"]
+        },
+
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "lib": ["DOM", "ESNext"],
+
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+
+        "sourceMap": true
+    },
+    "include": ["src", "vite-env.d.ts"]
+}
