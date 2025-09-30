@@ -15,21 +15,28 @@ export class ObstacleManager {
     obstacles: Obstacle[] = [];
 
     spawn(capybara: Capybara) {
+        if (rocks.length === 0) return;
+
         const index = Math.floor(Math.random() * rocks.length);
         const rock = rocks[index];
-        const size = rock!.width || (index === 0 ? 50 : index === 1 ? 40 : 30);
+
+        if (!rock) return;
+
+        const size = rock.width || 40;
+        const y = GROUND_Y + capybara.height - size;
 
         this.obstacles.push({
             x: canvas.width,
-            y: GROUND_Y + capybara.height - size,
+            y: y >= 0 ? y : GROUND_Y,
             width: size,
             height: size,
-            img: rock!,
+            img: rock,
         });
     }
 
     update() {
         this.obstacles.forEach((o) => (o.x -= OBSTACLE_SPEED));
+
         this.obstacles = this.obstacles.filter((o) => o.x + o.width > 0);
     }
 
@@ -37,5 +44,9 @@ export class ObstacleManager {
         this.obstacles.forEach((o) =>
             ctx.drawImage(o.img, o.x, o.y, o.width, o.height)
         );
+    }
+
+    reset() {
+        this.obstacles = [];
     }
 }

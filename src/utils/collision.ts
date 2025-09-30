@@ -5,20 +5,28 @@ export function checkCollision(
     capybara: Capybara,
     obstacles: Obstacle[]
 ): boolean {
-    const capyCenterX = capybara.x + capybara.width / 2;
-    const capyCenterY = capybara.y + capybara.height / 2;
-    const capyRadius = capybara.width / 2.5;
+    const capyLeft = capybara.x;
+    const capyRight = capybara.x + capybara.width;
+    const capyTop = capybara.y;
+    const capyBottom = capybara.y + capybara.height;
 
-    for (let o of obstacles) {
-        const rockCenterX = o.x + o.width / 2;
-        const rockCenterY = o.y + o.height / 2;
-        const rockRadius = o.width / 2.5;
+    for (const o of obstacles) {
+        const obsLeft = o.x;
+        const obsRight = o.x + o.width;
+        const obsTop = o.y;
+        const obsBottom = o.y + o.height;
 
-        const dx = capyCenterX - rockCenterX;
-        const dy = capyCenterY - rockCenterY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (o.width <= 0 || o.height <= 0) continue;
 
-        if (distance < capyRadius + rockRadius) return true;
+        if (
+            capyRight > obsLeft &&
+            capyLeft < obsRight &&
+            capyBottom > obsTop &&
+            capyTop < obsBottom
+        ) {
+            return true;
+        }
     }
+
     return false;
 }

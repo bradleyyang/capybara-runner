@@ -21,7 +21,10 @@ export class Capybara {
 
     update() {
         this.y += this.dy;
-        if (this.jumping) this.dy += GRAVITY;
+
+        if (this.y < GROUND_Y || this.dy < 0) {
+            this.dy += GRAVITY;
+        }
 
         if (this.y >= GROUND_Y) {
             this.y = GROUND_Y;
@@ -31,22 +34,20 @@ export class Capybara {
     }
 
     jump() {
-        if (!this.jumping) {
+        if (!this.jumping && this.y >= GROUND_Y) {
             this.dy = JUMP_STRENGTH;
             this.jumping = true;
         }
     }
 
     draw() {
-        let frame = this.jumping
-            ? this.frames[1]
-            : this.frames[this.frameIndex];
+        const frame = this.jumping ? this.frames[1] : this.frames[this.frameIndex];
 
         if (!this.jumping) {
             this.frameTick++;
-            if (this.frameTick % this.frameDelay === 0) {
-                this.frameIndex =
-                    (this.frameIndex + 1) % (this.frames.length - 1);
+            if (this.frameTick >= this.frameDelay) {
+                this.frameIndex = (this.frameIndex + 1) % (this.frames.length - 1);
+                this.frameTick = 0;
             }
         }
 
@@ -61,5 +62,13 @@ export class Capybara {
             this.width,
             this.height
         );
+    }
+
+    reset() {
+        this.y = GROUND_Y;
+        this.dy = 0;
+        this.jumping = false;
+        this.frameIndex = 0;
+        this.frameTick = 0;
     }
 }
